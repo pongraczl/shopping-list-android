@@ -6,22 +6,28 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.TextView;
 
 import com.example.android.shoppinglist.model.SLItem;
 
-import java.util.LinkedList;
 import java.util.List;
 
 
 public class SLAdapter extends RecyclerView.Adapter<SLAdapter.SLViewHolder> {
 
+    public static final int SL_ITEM_DESCRIPTION_MAX = 50;
+
     private final List<SLItem> slItems;
     private final LayoutInflater layoutInflater;
+    private final OnItemClickListener itemClickListener;
 
-    public SLAdapter(Context context, List<SLItem> slItems) {
+
+
+    public SLAdapter(Context context, List<SLItem> slItems, OnItemClickListener itemClickListener) {
         this.slItems = slItems;
         this.layoutInflater = LayoutInflater.from(context);
+        this.itemClickListener = itemClickListener;
     }
 
     @NonNull
@@ -33,16 +39,27 @@ public class SLAdapter extends RecyclerView.Adapter<SLAdapter.SLViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull SLViewHolder slViewHolder, int position) {
-        SLItem slItem = slItems.get(position);
+        final SLItem slItem = slItems.get(position);
+
+        slViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                itemClickListener.onItemClicked(slItem);
+            }
+        });
 
         slViewHolder.textViewTitle.setText(slItem.getTitle());
 
         String slItemDescription = slItem.getDescription();
-        int slItemDescriptionMax = 50;
-        if (slItemDescription.length() > slItemDescriptionMax) {
-            slItemDescription = slItemDescription.substring(0, slItemDescriptionMax - 3) + "...";
+        if (slItemDescription.length() > SL_ITEM_DESCRIPTION_MAX) {
+            slItemDescription = slItemDescription.substring(0, SL_ITEM_DESCRIPTION_MAX - 3) + "...";
         }
         slViewHolder.textViewDescription.setText(slItemDescription);
+        slViewHolder.textViewDescription.setVisibility(
+                (slItemDescription == null || slItemDescription.isEmpty())
+                ? View.GONE
+                : View.VISIBLE
+        );
     }
 
     @Override
@@ -52,7 +69,6 @@ public class SLAdapter extends RecyclerView.Adapter<SLAdapter.SLViewHolder> {
 
     public static class SLViewHolder
             extends RecyclerView.ViewHolder
-            implements View.OnClickListener
     {
         public final TextView textViewTitle;
         public final TextView textViewDescription;
@@ -63,10 +79,6 @@ public class SLAdapter extends RecyclerView.Adapter<SLAdapter.SLViewHolder> {
             textViewTitle = itemView.findViewById(R.id.sl_item_title);
             textViewDescription = itemView.findViewById(R.id.sl_item_description);
         }
-
-        @Override
-        public void onClick(View v) {
-            //TODO
-        }
     }
+
 }

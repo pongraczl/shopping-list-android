@@ -1,5 +1,6 @@
 package com.example.android.shoppinglist;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -16,7 +17,10 @@ import com.example.android.shoppinglist.model.SLItem;
 import java.util.LinkedList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnItemClickListener {
+
+    public static final String EXTRA_SL_ITEM = "com.example.android.shoppinglist.extra.SL_ITEM";
+    public static final int REQUEST_OPEN_SL_ITEM_DETAILS = 1;
 
     private final List<SLItem> slItems = new LinkedList<>();
     private RecyclerView recyclerView;
@@ -42,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         sampleDataInit();   //TODO: remove later
 
         recyclerView = findViewById(R.id.main_list_view);
-        adapter = new SLAdapter(this, slItems);
+        adapter = new SLAdapter(this, slItems, this);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -68,6 +72,17 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void openSLItemDetails(SLItem selectedItem) {
+        Intent intent = new Intent(this, SLItemDetailsActivity.class);
+        intent.putExtra(EXTRA_SL_ITEM, selectedItem);
+        startActivityForResult(intent, REQUEST_OPEN_SL_ITEM_DETAILS);
+    }
+
+    @Override
+    public void onItemClicked(SLItem selectedItem) {
+        openSLItemDetails(selectedItem);
     }
 
     private void sampleDataInit() {
