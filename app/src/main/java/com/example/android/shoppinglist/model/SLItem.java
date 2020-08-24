@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class SLItem implements Parcelable {
+    private long id;
     private String title;
     private String description;
 
@@ -13,6 +14,20 @@ public class SLItem implements Parcelable {
     public SLItem(String title, String description) {
         this.title = title;
         this.description = description;
+    }
+
+    public SLItem(long id, String title, String description) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -43,11 +58,13 @@ public class SLItem implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
+        out.writeLong(id);
         out.writeString(title);
         out.writeString(description);
     }
 
     private SLItem(Parcel in) {
+        id = in.readLong();
         title = in.readString();
         description = in.readString();
     }

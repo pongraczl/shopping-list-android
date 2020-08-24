@@ -2,6 +2,7 @@ package com.example.android.shoppinglist;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.android.shoppinglist.model.SLItem;
 
@@ -85,21 +87,39 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         openSLItemDetails(selectedItem);
     }
 
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (resultCode == RESULT_OK && requestCode == REQUEST_OPEN_SL_ITEM_DETAILS) {
+            SLItem responseSLItem = data.getParcelableExtra(SLItemDetailsActivity.EXTRA_SL_ITEM_REPLY);
+
+            //TODO: persist, synch
+            for (int index = 0; index < slItems.size(); index++) {  //TODO: remove it later
+                if (slItems.get(index).getId() == responseSLItem.getId()) {
+                    slItems.set(index, responseSLItem);
+                    adapter.notifyItemChanged(index);
+                    break;
+                }
+            }
+
+        }
+    }
+
     private void sampleDataInit() {
         slItems.add(
-                new SLItem(
+                new SLItem(1,
                         "kenyér",
                         "Ne legyen nagyon megégve, illetve nézd meg, hogy elég puha-e"
                 )
         );
         slItems.add(
-                new SLItem(
+                new SLItem(2,
                         "margarin",
                         "Rama vagy Flora"
                 )
         );
         slItems.add(
-                new SLItem(
+                new SLItem(3,
                         "sör",
                         ""
                 )
@@ -107,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
         for (int csoki = 1; csoki < 14; csoki++) {
             slItems.add(
-                    new SLItem(
+                    new SLItem( 100 + csoki,
                             "csoki" + csoki,
                             "többet is"
                     )
