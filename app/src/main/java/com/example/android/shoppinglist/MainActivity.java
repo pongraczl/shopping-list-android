@@ -19,10 +19,11 @@ import com.example.android.shoppinglist.model.SLItem;
 import java.util.LinkedList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements OnItemClickListener {
+public class MainActivity extends AppCompatActivity {
 
     public static final String EXTRA_SL_ITEM = "com.example.android.shoppinglist.extra.SL_ITEM";
     public static final int REQUEST_OPEN_SL_ITEM_DETAILS = 1;
+    public static final int REQUEST_OPEN_SL_ITEM_DETAILS_NEW_ITEM = 2;
 
     private final List<SLItem> slItems = new LinkedList<>();
     private RecyclerView recyclerView;
@@ -40,15 +41,28 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                Intent intent = new Intent(view.getContext(), SLItemDetailsActivity.class);
+                startActivityForResult(intent, REQUEST_OPEN_SL_ITEM_DETAILS_NEW_ITEM);
             }
         });
 
         sampleDataInit();   //TODO: remove later
 
         recyclerView = findViewById(R.id.main_list_view);
-        adapter = new SLAdapter(this, slItems, this);
+        adapter = new SLAdapter(this, slItems,
+                new OnItemClickListener() {
+                    @Override
+                    public void onItemClicked(SLItem selectedItem) {
+                        openSLItemDetails(selectedItem);
+                    }
+                },
+                new OnItemClickListener() {
+                    @Override
+                    public void onItemClicked(SLItem selectedItem) {
+                        performDelete(selectedItem);
+                    }
+                });
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -83,27 +97,59 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     }
 
     @Override
-    public void onItemClicked(SLItem selectedItem) {
-        openSLItemDetails(selectedItem);
-    }
-
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (resultCode == RESULT_OK && requestCode == REQUEST_OPEN_SL_ITEM_DETAILS) {
-            SLItem responseSLItem = data.getParcelableExtra(SLItemDetailsActivity.EXTRA_SL_ITEM_REPLY);
+        if (resultCode == RESULT_OK) {
 
-            //TODO: persist, synch
-            for (int index = 0; index < slItems.size(); index++) {  //TODO: remove it later
-                if (slItems.get(index).getId() == responseSLItem.getId()) {
-                    slItems.set(index, responseSLItem);
-                    adapter.notifyItemChanged(index);
+            SLItem responseSLItem = data.getParcelableExtra(SLItemDetailsActivity.EXTRA_SL_ITEM_REPLY);
+            if (responseSLItem == null) return;
+
+            switch(requestCode) {
+                case REQUEST_OPEN_SL_ITEM_DETAILS:
+                    if (data.getBooleanExtra(SLItemDetailsActivity.EXTRA_SL_ITEM_DELETE, false)) {
+                        performDelete(responseSLItem);
+                    } else {
+                        performUpdate(responseSLItem);
+                    }
                     break;
-                }
+                case REQUEST_OPEN_SL_ITEM_DETAILS_NEW_ITEM:
+                    performInsert(responseSLItem);
+                    break;
+                default:
             }
 
         }
     }
+
+
+    private void performUpdate(SLItem updatedSLItem) {
+        //TODO: persist, synch
+        for (int index = 0; index < slItems.size(); index++) {  //TODO: remove it later
+            if (slItems.get(index).getId() == updatedSLItem.getId()) {
+                slItems.set(index, updatedSLItem);
+                adapter.notifyItemChanged(index);
+                break;
+            }
+        }
+    }
+
+    private void performDelete(SLItem deletedSLItem) {
+        //TODO: persist, synch
+        for (int index = 0; index < slItems.size(); index++) {  //TODO: remove it later
+            if (slItems.get(index).getId() == deletedSLItem.getId()) {
+                slItems.remove(index);
+                adapter.notifyItemRemoved(index);
+                break;
+            }
+        }
+    }
+
+    private void performInsert(SLItem newItem) {
+        //TODO: persist, synch
+        slItems.add(newItem);
+        adapter.notifyItemInserted(slItems.lastIndexOf(newItem));
+        recyclerView.smoothScrollToPosition(slItems.size() - 1);
+    }
+
 
     private void sampleDataInit() {
         slItems.add(
