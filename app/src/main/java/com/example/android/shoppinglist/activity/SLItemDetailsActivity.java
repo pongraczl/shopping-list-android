@@ -1,4 +1,4 @@
-package com.example.android.shoppinglist;
+package com.example.android.shoppinglist.activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,9 +10,9 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.example.android.shoppinglist.R;
 import com.example.android.shoppinglist.model.SLItem;
 
 public class SLItemDetailsActivity extends AppCompatActivity {
@@ -32,7 +32,7 @@ public class SLItemDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_slitem_details);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        SLItem currentSLItem = getIntent().getParcelableExtra(MainActivity.EXTRA_SL_ITEM);
+        SLItem currentSLItem = getIntent().getParcelableExtra(SLMainListActivity.EXTRA_SL_ITEM);
 
         if (currentSLItem == null) {
             currentSLItem = new SLItem(-1, "New item","");
@@ -78,7 +78,7 @@ public class SLItemDetailsActivity extends AppCompatActivity {
     public void deleteSLItem(View view) {
         new AlertDialog.Builder(this)
                 .setTitle("Confirm")
-                .setMessage("Are you sure you want to delete this item?")
+                .setMessage("Are you sure you want to remove this item?")
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
@@ -107,7 +107,7 @@ public class SLItemDetailsActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        //outState.putParcelable(MainActivity.EXTRA_SL_ITEM, readSLItem());
+        //outState.putParcelable(SLMainListActivity.EXTRA_SL_ITEM, readSLItem());
     }
 
     @Override

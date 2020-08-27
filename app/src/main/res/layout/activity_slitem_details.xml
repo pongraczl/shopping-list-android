@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".SLItemDetailsActivity">
+    tools:context=".activity.SLItemDetailsActivity">
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"

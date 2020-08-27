@@ -1,4 +1,4 @@
-package com.example.android.shoppinglist;
+package com.example.android.shoppinglist.activity;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,10 +8,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.example.android.shoppinglist.R;
 import com.example.android.shoppinglist.model.SLItem;
 
 import java.util.List;
@@ -77,7 +77,7 @@ public class SLAdapter extends RecyclerView.Adapter<SLAdapter.SLViewHolder> {
             public void onClick(View v) {
                 new AlertDialog.Builder(parentContext)
                         .setTitle("Confirm")
-                        .setMessage("Are you sör you want to delete this item?")
+                        .setMessage("Are you sör you want to remove this item?")
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             @Override

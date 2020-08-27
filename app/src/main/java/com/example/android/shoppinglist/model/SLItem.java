@@ -3,9 +3,18 @@ package com.example.android.shoppinglist.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.Nullable;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity
 public class SLItem implements Parcelable {
+
+    @PrimaryKey(autoGenerate = true)
     private long id;
+
     private String title;
+
     private String description;
 
 
@@ -46,7 +55,13 @@ public class SLItem implements Parcelable {
         this.description = description;
     }
 
-
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        return  (obj instanceof SLItem)
+                && (
+                    ((SLItem) obj).getId() == this.getId()
+                   );
+    }
 
 
     /* START of Implementation of Parcelable interface */

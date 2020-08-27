@@ -1,10 +1,9 @@
-package com.example.android.shoppinglist;
+package com.example.android.shoppinglist.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,20 +11,26 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
+import com.example.android.shoppinglist.R;
 import com.example.android.shoppinglist.model.SLItem;
+import com.example.android.shoppinglist.service.ISLItemService;
+import com.example.android.shoppinglist.service.SLItemInMemForTestService;
+import com.example.android.shoppinglist.service.SLItemOfflineService;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class SLMainListActivity extends AppCompatActivity {
 
     public static final String EXTRA_SL_ITEM = "com.example.android.shoppinglist.extra.SL_ITEM";
     public static final int REQUEST_OPEN_SL_ITEM_DETAILS = 1;
     public static final int REQUEST_OPEN_SL_ITEM_DETAILS_NEW_ITEM = 2;
 
-    private final List<SLItem> slItems = new LinkedList<>();
+    private List<SLItem> slItems = new LinkedList<>();
+
+    //private ISLItemService slItemService = new SLItemInMemForTestService().initSampleData();
+    private ISLItemService slItemService;
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
 
@@ -47,10 +52,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        sampleDataInit();   //TODO: remove later
+        slItemService = new SLItemOfflineService(getApplicationContext());
+        slItems = slItemService.getAll();
 
         recyclerView = findViewById(R.id.main_list_view);
-        adapter = new SLAdapter(this, slItems,
+        adapter = new SLAdapter(this, slItemService.getAll(),
                 new OnItemClickListener() {
                     @Override
                     public void onItemClicked(SLItem selectedItem) {
@@ -104,81 +110,33 @@ public class MainActivity extends AppCompatActivity {
             if (responseSLItem == null) return;
 
             switch(requestCode) {
+
                 case REQUEST_OPEN_SL_ITEM_DETAILS:
                     if (data.getBooleanExtra(SLItemDetailsActivity.EXTRA_SL_ITEM_DELETE, false)) {
                         performDelete(responseSLItem);
                     } else {
-                        performUpdate(responseSLItem);
+                        slItemService.update(responseSLItem);
+                        adapter.notifyItemChanged(slItems.lastIndexOf(responseSLItem));
                     }
                     break;
+
                 case REQUEST_OPEN_SL_ITEM_DETAILS_NEW_ITEM:
-                    performInsert(responseSLItem);
+                    slItemService.insert(responseSLItem);
+                    adapter.notifyItemInserted(slItems.lastIndexOf(responseSLItem));
+                    //recyclerView.smoothScrollToPosition(slItems.size() - 1);
                     break;
+
                 default:
+
             }
 
         }
     }
 
-
-    private void performUpdate(SLItem updatedSLItem) {
-        //TODO: persist, synch
-        for (int index = 0; index < slItems.size(); index++) {  //TODO: remove it later
-            if (slItems.get(index).getId() == updatedSLItem.getId()) {
-                slItems.set(index, updatedSLItem);
-                adapter.notifyItemChanged(index);
-                break;
-            }
-        }
+    private void performDelete(SLItem slItem) {
+        int index = slItems.lastIndexOf(slItem);
+        slItemService.remove(slItem);
+        adapter.notifyItemRemoved(index);
     }
 
-    private void performDelete(SLItem deletedSLItem) {
-        //TODO: persist, synch
-        for (int index = 0; index < slItems.size(); index++) {  //TODO: remove it later
-            if (slItems.get(index).getId() == deletedSLItem.getId()) {
-                slItems.remove(index);
-                adapter.notifyItemRemoved(index);
-                break;
-            }
-        }
-    }
-
-    private void performInsert(SLItem newItem) {
-        //TODO: persist, synch
-        slItems.add(newItem);
-        adapter.notifyItemInserted(slItems.lastIndexOf(newItem));
-        recyclerView.smoothScrollToPosition(slItems.size() - 1);
-    }
-
-
-    private void sampleDataInit() {
-        slItems.add(
-                new SLItem(1,
-                        "kenyér",
-                        "Ne legyen nagyon megégve, illetve nézd meg, hogy elég puha-e"
-                )
-        );
-        slItems.add(
-                new SLItem(2,
-                        "margarin",
-                        "Rama vagy Flora"
-                )
-        );
-        slItems.add(
-                new SLItem(3,
-                        "sör",
-                        ""
-                )
-        );
-
-        for (int csoki = 1; csoki < 14; csoki++) {
-            slItems.add(
-                    new SLItem( 100 + csoki,
-                            "csoki" + csoki,
-                            "többet is"
-                    )
-
-            );
-        }
-    }
 }

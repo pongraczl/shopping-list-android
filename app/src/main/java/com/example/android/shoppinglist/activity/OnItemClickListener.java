@@ -1,4 +1,4 @@
-package com.example.android.shoppinglist;
+package com.example.android.shoppinglist.activity;
 
 import com.example.android.shoppinglist.model.SLItem;
 
